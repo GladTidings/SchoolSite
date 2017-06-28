@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang='en'>
+  
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>State Sheets</title>
+    <!--link rel='stylesheet' href='style.css'-->
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>
+     
+    <!-- Latest compiled and minified JavaScript -->
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js' integrity='sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa' crossorigin='anonymous'></script>
+    
+    <!-- favicon -->
+    <link rel="icon" href="/scms_serve/favicon.jpg" />
+
+    <style>
+      body {
+        font-family: sans-serif; 
+      }
+      
+      #signin {
+        max-width: 300px;
+        margin: 10px auto 10px auto;
+        border: solid 1px #606060;
+        border-radius: 3px;
+        padding: 5px;
+        padding-bottom: 15px;
+        text-align: center;
+        display: none;
+      }
+      
+      .signin_inner {
+        margin: 2px;
+        width: 80%;
+        padding: 2px;
+      }
+      
+      #signin_submit, #signin_submit:focus, #signin_submit:active {
+        background-color: #308030;
+        border-radius: 2px;
+        color: white;
+        border: solid 1px #052005;
+        width: 83%;
+        padding: 5px;
+        cursor: pointer;        
+      }
+      
+      #signin_submit:hover {
+        background-color: #409040;
+      }
+      
+      #main {
+        display: none;
+        padding: 2%;
+        padding-top: 0px;
+      }
+      
+      #title1 { padding-top: 0px; margin-top: 5px;}
+      #title2 { padding-top: 20px; }
+      
+      #logout {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+      }
+      
+      @media print{
+        #main {padding: 0px;}
+        .dont_print {display: none;}
+      }
+      
+      
+      
+    /* ==================================== For State Info ==================================== */  
+      t {
+        font-size: 9px;
+        display: inline-block;
+      }
+      .top_label {
+        padding-bottom: 7px;
+        line-height: 20px;
+      }
+      
+      .top_label > .bigger {
+          font-size: 10px;
+      }
+  
+      table {
+        width: 100%;
+        font-size: 9px;
+      }
+      td {
+        padding: 0px;
+        margin: 0px;
+      }
+      th, td {
+        border: solid 1px #aaa;
+        text-align: center;
+        min-height: 28px;
+      }
+      th {
+        font-weight: bold;
+        width: 12%;
+        border-bottom: solid 1px #777;
+        padding: 5px;
+      }
+      td.date {
+        padding: 5px;
+      }
+  
+      .same_day {
+        font-weight: 600;
+        /*background-color: #e8e8e8;*/
+      }
+  
+      /*out same day head*/
+      /*in same day head*/
+      /*initial same day head*/
+      th.i_sd, th.o_sd, th.in_sd  {
+        border-top: solid 2px #222;
+        color: #4a4a4a;
+        font-weight: 100;
+      }
+      /*initial same day head*/
+      /* began parent initials head */
+      .in_sd, .b_p_i  {
+        border-right: solid 2px #222;
+      }
+  
+      .last_row > td.o_sd, .last_row > td.i_sd, .last_row > td.in_sd {
+        border-bottom: solid 2px #222;
+      }
+  
+      td.date {
+        font-size: 10px;
+      }
+  
+      td.same_day {
+        padding: 0px;
+      }
+
+      img.bg_color {
+        width: 60%;
+        height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0px;
+        opacity: 0;
+      }
+  
+      .sigs {
+        padding-top: 40px;
+      }
+      .sigs.director {padding-left: 160px;}
+  
+      .sam_hover {
+        position: fixed;
+      }
+
+      #success_msg, #info_msg, #warning_msg, #danger_msg {
+        text-align: center;
+        top: 20px;
+        left: 50%;
+        width: 80%;
+        transform: translateX(-50%);
+      }
+      
+      #edit_kids {
+        transition: all 0.3s ease;
+        width: 140px;
+        height: 34px;
+        bottom: 100px;
+        right: 20px;
+      }
+      
+      #choose_month {
+        transition: all 0.3s ease;
+        width: 140px;
+        height: 34px;
+        bottom: 60px;
+        right: 20px;
+      }
+      
+      #date_picker {
+        display: none;
+      }
+  
+      #month_btn {
+        transition: all 0.3s ease;
+        width: 140px;
+        bottom: 20px;
+        right: 20px;
+      }
+      
+      
+  
+      @media print {
+        .break_after {page-break-after: always;}
+  
+        div { float: none !important; position: static !important; display: inline;
+              box-sizing: content-box !important;
+        }
+  
+        body { overflow: visible;}
+  
+        hr {opacity: 0}
+  
+        #main_container { padding-top: 0px;}
+  
+        .sam_hover, #title { display: none; }
+        
+        .dont_print {display: none;}
+  
+      }
+      
+      /* ====================== edit kids modal ===================*/
+      #kid_table th {
+        border: none;
+        border-bottom: solid 1px #777;
+      }  
+      #kid_table td {
+        border: none;
+        border-bottom: solid 1px #ddd;
+      }
+      #kid_table {
+        font-size: 12px;
+      }
+      
+      .x_col {
+        font-size: 14px;
+        padding: 4px !important;
+        font-weight: bold;
+        color: #d9534f;
+        cursor: pointer;
+      }
+      
+      .x_col:hover {
+        color: #c9302c;
+      }
+      
+      #kid_table input {
+        padding-left: 5px;
+        width: 100%;
+      }
+      
+      #new_row td {
+        padding: 4px;
+      }
+      
+      #g_plus {
+        color: #449d44;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      #g_plus:hover {
+        color: #5cb85c;
+      }
+      .btn-success {
+        background-color:#449d44;
+        border: color: #255625;
+      }
+      .btn-success:hover {
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+      }
+      
+      .alert {z-index: 2000;}
+      
+    </style>
+  </head>
+  
+  <body>
+    <a href='/' class='dont_print'><h4 id='title2' style='text-align: center;' class='dont_print'>GLAD TIDINGS CHRISTIAN ACADEMY</h4></a>
+    <h2 id='title1' style='text-align: center;' class='dont_print'>State Sheets</h2>
+    <div id='signin'>
+      <p class=''>Please Sign In</p>
+      <input id='email' class='signin_inner' placeholder='Email'></input><br>
+      <input id='password' type='password' class='signin_inner' placeholder='Password'></input><br>
+      <button id='signin_submit' class='signin_inner'>Enter</button>
+    </div>
+    <div id='main'>
+      <button id='logout' class='dont_print btn btn-danger'>Log Out</button>
+      <div id='state_data'></div>
+      <button id='edit_kids' class='btn btn-primary sam_hover'>Edit Students</button>
+      <button id='choose_month' class='btn btn-primary sam_hover'>Choose Month<br>
+        <input id='date_picker' type='date' class='form-control' placeholder='date' min='1970-01-01'/>
+      </button>
+      <button id='month_btn' class='btn btn-primary sam_hover'>Show This Month</button>
+      
+      <!-- ====================================== edit kid modal =================================== -->
+      <div id='edit_mod' class='modal fade' tabindex='-1' role='dialog'>
+        <div class='modal-dialog' role="document">
+          <div class='modal-content'>
+            <div class='modal-header'>
+              <button type='button' class='close edit_cancel' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+              <h4 class='modal-title'>Edit Students</h4>
+            </div>
+            <div class='modal-body' style='overflow: auto;'>
+              <p>Students</p>
+              
+              <!-- edit kid table -->
+              <table id='kid_table' class='table table-striped'>
+                <thead>
+                  <tr><th>Parent's Name</th><th>Student's Name</th><th style='width: 8%;'>DCN</th><th style='width: 2%;'></th></tr>
+                </thead>
+                <tbody id='edit_tbody'>
+                </tbody>
+              </table>
+              
+            </div>
+            <div class='modal-footer'>
+              <button id='edit_cancel' type='button' class='btn btn-danger edit_cancel' data-dismiss='modal'>Cancel</button>
+              <button id='edit_save' type='button' class='btn btn-success'>Save Changes</button>
+            </div>      
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+    </div> <!-- #main -->
+      <div id='info_msg' style='display: none;' role='alert' class='alert alert-info sam_hover'></div>
+      <div id='success_msg' style='display: none;' role='alert' class='alert alert-success sam_hover'></div>
+      <div id='warning_msg' style='display: none;' role='alert' class='alert alert-warning sam_hover'></div>
+  </body>
+  
+  
+  
+  
+  
+  <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyBGe-tvIlUFyNoJQmBvu1omYOAvPerX3pY",
+      authDomain: "state-ba666.firebaseapp.com",
+      databaseURL: "https://state-ba666.firebaseio.com",
+      projectId: "state-ba666",
+      storageBucket: "state-ba666.appspot.com",
+      messagingSenderId: "845028064166"
+    };
+    firebase.initializeApp(config);
+    
+    let auth = firebase.auth();
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        console.log('User is signed in');
+        $('#signin').fadeOut(400);
+        main();
+      }
+      else {
+        console.log('No user is signed in');
+        children = null;
+        children_dir = null;
+        to_add = null;
+        $('#main').fadeOut(400, function(){
+          $('#signin').fadeIn(600);
+        });
+      }
+      
+      $('#signin_submit').on('click', function () {
+        firebase.auth().signInWithEmailAndPassword($('#email').val(), $('#password').val()).catch(function(error) {
+          var errorCode = error.code;
+          var errorMessage = error.message;          
+          console.log(error);
+          alert(error.message);
+        });
+      });
+      
+      $('#logout').on('click', function () {
+        firebase.auth().signOut().then(function() {
+          console.log('Sign-out successful');
+        }).catch(function(error) {
+          console.log('An error happened');
+          console.log(error);
+        });
+      });
+    });
+    
+    function main() {
+      console.log('user id is');
+      
+      children = null;
+      children_dir = null;
+      var database = firebase.database();
+      firebase.database().ref('kids_dict').on('value', function(snapshot) {
+        console.log( 'Data Loaded: ');
+        console.log(snapshot.val());
+        children_dir = snapshot.val();
+        children = dir_to_list(children_dir);
+        state_info();
+      });
+      
+      $('#main').fadeIn(600);
+    }
+    
+    function dir_to_list(data) {
+      let ret_list = new Array(Object.keys(data).length);
+      let i = 0;
+      for (var key in data) {
+        ret_list[i++] = data[key];
+      }
+      
+      return ret_list;
+    }
+    
+    
+  // ==================================== For State Info =================================
+    populate = null;
+    async function state_info () {
+	  this_group = null;
+	  top_label_str = null;
+	  now = new Date();
+	  this_date = new Date(now.getFullYear(), now.getMonth()+1, 1); // next month, 1st, 2017
+	  month_names = ["January", "February", "March", "April", "May", "June",
+	    "July", "August", "September", "October", "November", "December"
+	  ];
+	  this_child = null;
+	
+	  // =========================== populate function ========================
+	  populate = function() { return new Promise (function(resolve, reject) {
+	    $("#state_data").html("");
+	    let last_date = (new Date(this_date.getFullYear(), this_date.getMonth()+1, 0))
+	                        .getDate();// last date of the month
+	
+	    let day_of_week;
+	
+	    let table_str = "<table>";
+	    table_str +=  "<tr>";
+	    table_str +=    "<th>DATE</th> <th>TIME BEGAN</th>";
+	    table_str +=    "<th class='b_p_i'>PARENT/GAURDIAN'S INITIALS</th>";
+	    table_str +=    "<th class='same_day o_sd'>Time Out if Returning the Same Day</th>";
+	    table_str +=    "<th class='same_day i_sd'>Time In if Returning the Same Day</th>";
+	    table_str +=    "<th class='same_day in_sd'>Parent/Guardian’s Initials</th>";
+	    table_str +=    "<th>TIME ENDED</th>	<th>PARENT/GUARDIAN’S INITIALS</th>";
+	    table_str +=  "</tr>";
+	
+	    for (let day = 1; day <= last_date; day++) {
+	      day_of_week = (new Date(this_date.getFullYear(), this_date.getMonth(), day)).getDay();
+	      if (day_of_week == 0 || day_of_week == 6)
+	        continue;
+	
+	      // last day could be any of the last 3 days of the month
+	      if (day >= last_date - 2) { // TODO use string splicing to inject this
+	        switch (day) {
+	          case last_date:
+	            table_str += "<tr class='last_row'>";
+	          break;
+	
+	          case last_date - 2:
+	          case last_date - 1:
+	            // check if tomorrow is on the weekend.
+	            // If tomorrow is on the weekend, the next iteration will continue
+	            // and the following will also continue, if it happens
+	            // and that iteration will be the last.
+	            // So, this is the last successful iteration.
+	            day_of_week = new Date(this_date.getFullYear(), this_date.getMonth(),
+	                                      day + 1).getDay();
+	            if (day_of_week == 0 || day_of_week == 6) {
+	              table_str += "<tr class='last_row'>";
+	            }
+	          break;
+	
+	        }
+	      }
+	      else
+	        table_str += "<tr>";
+	
+	      table_str +=  "<td class='date'>"+ (this_date.getMonth()+1) +"/"+ day;
+	      table_str +=                    "/"+ this_date.getFullYear() +"</td>";
+	      table_str +=  "<td></td> <td class='b_p_i'></td>";
+	      table_str +=  "<td class='same_day o_sd'>";
+	      //table_str +=     "<img class='bg_color' src='/static/images/e8e8e8.png'/>"
+	      table_str +=   "</td>";
+	      table_str +=   "<td class='same_day i_sd'>";
+	      //table_str +=      "<img class='bg_color' src='/static/images/e8e8e8.png'/>";
+	      table_str +=   "</td>";
+	      table_str +=   "<td class='in_sd same_day'>";
+	      //table_str +=      "<img class='bg_color' src='/static/images/e8e8e8.png'/>";
+	      table_str +=   "</td>";
+	      table_str +=   "<td></td> <td></td>";
+	      table_str +=   "</tr>";
+	    }
+	
+	    table_str += "</table>";
+	
+	
+	    console.log("first half of populate done. Time is ");
+	    console.log(new Date().getSeconds() +" : "+ new Date().getMilliseconds());
+	
+	    let sigs_str = "<t class='sigs'>Signiture:___________________________________</t>";
+	    sigs_str += "<t class='sigs director'>Director:_______________________________________</t>";
+	    let breaker = "<hr class='break_after' />";
+	
+	    let groups_jq = [];
+	
+	    for (let id = 0; id < children.length; id++) {
+	      this_child = children[id];
+	      if (this_child[3] !== undefined && this_child[3] === 'hidden')
+	         continue;
+	      
+	      
+	      this_group = $("<div id='group_'"+id+"'' class='group'></div>");
+	      groups_jq.push(this_group);
+	
+	      this_date;
+	
+	      top_label_str = "<t class='top_label'>STATE PAY SIGN IN SHEET FOR ";
+	      top_label_str += month_names[this_date.getMonth()] +" ";
+	      top_label_str += this_date.getFullYear() +"<br>";
+	      top_label_str += "GLAD TIDINGS ACADEMY AND CHILD DEVELOPMENT CENTER   #000783264<br>";
+	      top_label_str += "PARENT:  <span class='bigger'>"+ this_child[0] +"</span><br>";
+	      top_label_str += "CHILD:  <span class='bigger'>"+ this_child[1] +"</span><br>";
+	      top_label_str += "CHILD DCN: <span class='bigger'>"+ this_child[2] +"</span></t>";
+	
+	      this_group.append($(top_label_str));
+	
+	      this_group.append($(table_str));
+	
+	      this_group.append($(sigs_str));
+	
+	      // don''t put a page break after last section
+	      if (id != children.length - 1)
+	        this_group.append($(breaker));
+	
+	    }
+	
+	    $("#state_data").append($("<h3 id='title'>State Sheets For "+
+	                                month_names[this_date.getMonth()] +" "+
+	                                this_date.getFullYear() +"</h3>"));
+	
+	    $("#state_data").append(groups_jq);
+	
+	    console.log("leaving populate. Time is ");
+	    console.log(new Date().getSeconds() +" : "+ new Date().getMilliseconds());
+	    
+	    console.log('getting ready to resolve');
+	    
+	    resolve('thumbs up');
+	  }); }
+	  
+	  // await populate();
+	  setTimeout(populate, 0);
+	  //$("#success_msg").text("Done").fadeIn(400).delay(1400).fadeOut(400);
+	  setTimeout(edit_kids, 0);
+	  // await edit_kids();
+    }
+    
+    // ============================================ Edit Modal =====================================
+    function edit_kids() {
+        let edit_str = "<tr id='new_row'>" +
+                    "<td><input id='new_parent' class='form-contol' placeholder='Parent`s Name'/></td>" +
+                    "<td><input id='new_kid' class='form-contol' placeholder='New Student'/></td>" + 
+                    "<td><input id='new_dcn' class='form-contol' placeholder='DCN'/></td>" +
+                    "<td id='g_plus'>+</td>" +
+                "</tr>";
+        
+        let this_child = null;
+        for (let id in children_dir) {
+            this_child = children_dir[id];
+            
+            if (this_child[3] !== undefined && this_child[3] === 'hidden')
+                continue;
+            
+            edit_str += "<tr id='"+ id +"'><td>"+this_child[0]+"</td><td>"+this_child[1]+"</td>" +
+                        "<td>"+this_child[2]+"</td><td id='"+id+"_x' class='x_col'>X</td></tr>";
+        }
+        
+        // list of ids for kids to be deleted
+        to_delete = [];
+        to_add = {};
+        let delete_id = '';
+        
+        
+      $("#edit_tbody").html(edit_str).promise().done(function () {
+        $(".x_col").on('click', function (){
+            delete_id = $(this).parent().attr("id");
+            if (delete_id in to_add) {
+                delete to_add[delete_id]
+            }
+            else {
+                to_delete.push(delete_id);
+            }
+            $(this).parent().remove();
+        });
+        
+        $("#g_plus").on('click', function () {
+            let new_parent = $("#new_parent").val();
+            let new_kid = $("#new_kid").val();
+            let new_dcn = $("#new_dcn").val();
+            
+            if (new_kid === "" || new_parent === "") {
+                $("#warning_msg").text("Names cannot be blank").fadeIn(0).delay(2000).fadeOut(400);
+                return;
+            }
+            
+            let new_id = new_parent + new_kid;
+            new_id = new_id.replace(/\W/g, '').toLowerCase();
+            
+            to_add[new_id] = [new_parent, new_kid, new_dcn];
+            
+            let new_str = "<tr id='"+ new_id +"'>" +
+                             "<td>"+ new_parent +"</td>" +
+                             "<td>"+ new_kid +"</td>" +
+                             "<td>"+ new_dcn +"</td>" +
+                             "<td id='"+ new_id +"_x' class='x_col'>X</td></tr>";
+            
+            let to_append = $(new_str)
+            $("#new_row").after(to_append);
+            to_append.find(".x_col").on("click",  function (){
+                delete_id = $(this).parent().attr("id");
+                if (delete_id in to_add) {
+                    delete to_add[delete_id]
+                }
+                else {
+                    to_delete.push(delete_id);
+                }
+                $(this).parent().remove();
+            });
+            
+            $("#new_parent").val("");
+            $("#new_kid").val("");
+            $("#new_dcn").val("");
+        });
+      });
+    }
+    
+    
+    
+    $("#edit_save").on("click", function() {
+        $("#info_msg").text("Working...").fadeIn(0).delay(1400).fadeOut(400);
+        $("#edit_mod").modal("hide");
+        console.log('to add is', to_add);
+        for (let i = 0; i < to_delete.length; i++) {
+            //to_add[to_delete[i]] = null;
+            to_add[to_delete[i]] = children_dir[to_delete[i]];
+            to_add[to_delete[i]].push('hidden');
+        }
+
+        console.log('to delete is', to_delete);
+        console.log('new to add is ', to_add);
+        
+        // post changes
+        firebase.database().ref("kids_dict").update(to_add).then(function() {
+            $("#success_msg").text("Done").fadeIn(0).delay(1400).fadeOut(400);
+        });
+    });
+    
+    $(".edit_cancel").on("click", function(){
+        to_delete = [];
+        to_add = {};
+        edit_kids();
+    });
+    
+    // ==================================== Button codes ================================
+    // ==================================== Edit Kids ===================================
+    $('#edit_kids').on('click', function (){
+      $('#edit_mod').modal('show');
+      to_delete = [];
+      to_add = {};
+    });
+    
+    $('#myModal').on('shown.bs.modal', function () {
+      $('#myInput').focus();
+    });
+    
+    // ===================================== Date Picker ================================
+    choosing_month = false;
+    $('#choose_month').on('click', function() {
+      if (!choosing_month) {
+        choosing_month = true;
+        $(this).animate({'height': '80px', 'width': '190px'}, 200);
+        $('#edit_kids').animate({ 'bottom': '146px'});
+        $('#date_picker').fadeIn(500);
+      }
+      else {
+        choosing_month = false;
+      }
+    });
+    
+    $('#date_picker').change( async function(){
+        if(!this.value || parseInt(this.value.substring(0, 4)) < 1970) return;
+        
+        $("#info_msg").text("Working...").fadeIn(0).delay(1400).fadeOut(400);
+        
+        $(this).fadeOut();
+        $('#choose_month').animate({'height': '34px', 'width': '140px'});
+        $('#edit_kids').animate({ 'bottom': '100px'});
+        
+        var input_date = new Date(this.value + ' GMT-0600');
+        input_date.setDate(15);
+        this_date = input_date;
+        console.log('date is');
+        console.log(input_date);
+        
+        
+	setTimeout(populate, 0);
+        // await populate();
+        $("#success_msg").text("Done").fadeIn(400).delay(1400).fadeOut(400);
+        
+        
+    });
+    
+    // =================================== month switcher =====================================
+    next_month = true;
+	  
+    // add last month
+    $("#month_btn").on("click", async function () {
+      $("#info_msg").text("Working...").fadeIn(0).delay(1400).fadeOut(400);
+      //$(this).toggleClass("btn-success").toggleClass("btn-primary");
+  
+      if (next_month) {
+        next_month = !next_month; // Showing current month
+        $(this).html("Show Next Month");
+        this_date = new Date(now.getFullYear(), now.getMonth(), 1); // this month, 1st, 2017
+       
+        //await populate();
+        setTimeout(populate, 0);
+        $("#success_msg").text("Showing Current Month").fadeIn(400).delay(1400).fadeOut(400);
+        
+      }
+      else {
+        next_month = !next_month; // Showing next month
+        $(this).html("Show This Month");
+        this_date = new Date(now.getFullYear(), now.getMonth()+1, 1); // next month, 1st, 2017
+        
+        //await populate();
+        setTimeout(populate, 0);
+        $("#success_msg").text("Showing Next Month").fadeIn(400).delay(1400).fadeOut(400);
+        
+      }
+  
+      /*console.log("\n\nstarting populate. Time is ");
+      console.log(new Date().getSeconds() +" : "+ new Date().getMilliseconds());
+      //populate();
+      console.log("done with populate. Time is ");
+      console.log(new Date().getSeconds() +" : "+ new Date().getMilliseconds());*/
+    });
+    
+  </script>
+</html>
+
+
+
+
+
+
+
+

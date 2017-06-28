@@ -215,7 +215,7 @@ firebase.database().ref('/scms_data/info_page_content').once('value', function(s
             location_pathname = location_pathname.substring(0, location_pathname.length - 1);
         
         let root_index = location_pathname.indexOf(page_data['root']);
-        page_data['url'] = location_pathname.substring(root_index+page_data['root'].length);
+        page_data['url'] = location_pathname.substring(root_index+page_data['root'].length).toLowerCase();
         let temp_page = {};        
         let page_found = false;
         if (root_index === -1 || page_data['url'] === '') {
@@ -349,7 +349,7 @@ function do_assignment(assignment, assignment_data) {
             load_loop();
             //$('#loading_div').fadeIn(200);
             
-            let new_url = assignment_data;
+            let new_url = assignment_data.toLowerCase();
             let base_url = document.URL.substring(0, document.URL.lastIndexOf(page_data['path']));
             if (base_url[ base_url.length -1 ] !== '/')
                 base_url += '/';
