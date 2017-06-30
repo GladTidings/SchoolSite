@@ -289,7 +289,7 @@ firebase.database().ref('/scms_data/info_page_content').once('value', function(s
         
         //$('a').css('color', page_data['site_color']);
         let jq_css = '<style id="jq_css"> ';
-        jq_css +=         'a, a:hover, #site_title { color: '+ page_data['site_color'] +'; } ';
+        jq_css +=         'a, a:hover, #site_title, .color, h1, h2, h3 { color: '+ page_data['site_color'] +'; } ';
         jq_css +=         '.tab.active { background-color: '+ page_data['site_color'] +'; } ';
         jq_css +=    '</style>';
         

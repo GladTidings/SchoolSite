@@ -5,7 +5,7 @@
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <title>State Sheets</title>
+    <title>State Sheets - Glad Tidings</title>
     <!--link rel='stylesheet' href='style.css'-->
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
     <!-- Latest compiled and minified CSS -->
@@ -330,7 +330,7 @@
   
   
   
-  <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.1.3/firebase.js"></script>
   <script>
     // Initialize Firebase
     var config = {
@@ -633,17 +633,24 @@
         $("#info_msg").text("Working...").fadeIn(0).delay(1400).fadeOut(400);
         $("#edit_mod").modal("hide");
         console.log('to add is', to_add);
+        let for_update = {};
         for (let i = 0; i < to_delete.length; i++) {
-            //to_add[to_delete[i]] = null;
-            to_add[to_delete[i]] = children_dir[to_delete[i]];
-            to_add[to_delete[i]].push('hidden');
+            //for_update[to_delete[i]] = null;
+            for_update[to_delete[i]] = children_dir[to_delete[i]];
+            for_update[to_delete[i]][3] = 'hidden';
+        }
+        
+        for(let key in to_add) {
+            for_update[key] = to_add[key];
+            for_update[key][3] = 'not hidden';
         }
 
         console.log('to delete is', to_delete);
         console.log('new to add is ', to_add);
+        console.log('update is ', for_update);
         
         // post changes
-        firebase.database().ref("kids_dict").update(to_add).then(function() {
+        firebase.database().ref("kids_dict").update(for_update).then(function() {
             $("#success_msg").text("Done").fadeIn(0).delay(1400).fadeOut(400);
         });
     });
@@ -718,7 +725,7 @@
        
         //await populate();
         setTimeout(populate, 0);
-        $("#success_msg").text("Showing Current Month").fadeIn(400).delay(1400).fadeOut(400);
+        $("#success_msg").text("Showing Current Month").fadeIn(400).delay(2400).fadeOut(400);
         
       }
       else {
@@ -728,7 +735,7 @@
         
         //await populate();
         setTimeout(populate, 0);
-        $("#success_msg").text("Showing Next Month").fadeIn(400).delay(1400).fadeOut(400);
+        $("#success_msg").text("Showing Next Month").fadeIn(400).delay(2400).fadeOut(400);
         
       }
   
