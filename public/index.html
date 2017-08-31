@@ -248,9 +248,16 @@ firebase.database().ref('/scms_data/info_page_content').once('value', function(s
         }
 
         
+        // First Page Draw - page_data is now read-only
         $('#page_title').text(page_data['page_title'].toUpperCase());
         $('#page_content').html(page_data['page_content']);
+        curr_url = page_data['url'];
         
+        history.replaceState (
+            {'page_data': page_data, 'new_url': curr_url}, 
+            page_data['page_title'] + ' - ' + page_data['site_title'], 
+            page_data['root']+curr_url
+        );
         
         if (page_data['background_image'] !== '') {
             $('body').css('background', 'url('+page_data['background_image']['url']+') no-repeat')
@@ -343,18 +350,31 @@ $(window).resize(function(){
 
 // ================================== OTHER PAGE LOADS ================================
 
-function do_assignment(assignment, assignment_data) {
+function do_assignment(assignment, assignment_data, no_push) {
+    
+    no_push = (typeof no_push == 'undefined' ? false: no_push); // default to false for no_push
+    
     switch(assignment) {
         case 'page': 
             loading = true;
             load_loop();
             //$('#loading_div').fadeIn(200);
             
+            if (!no_push) {
+                history.pushState (
+                    {'page_data': page_data, 'new_url': curr_url}, 
+                    page_data['page_title'], 
+                    page_data['root']+curr_url
+                );
+            }
+            
             let new_url = assignment_data.toLowerCase();
             let base_url = document.URL.substring(0, document.URL.lastIndexOf(page_data['path']));
             if (base_url[ base_url.length -1 ] !== '/')
                 base_url += '/';
             
+            
+            curr_url = new_url;
             
             firebase.database().ref('/scms_data/info_page_content/page_content').once('value', function(snapshot){
                 let data = snapshot.val();
@@ -374,8 +394,16 @@ function do_assignment(assignment, assignment_data) {
                     $('#'+new_url+'_tab').addClass('active');
                     //setTimeout(() => $('.tab.active').css('background-color', page_data['site_color']), 100);
                     
-                    document.title = page['name'] + ' - ' + page_data['site_title'];                                   
-                    history.pushState({'page_data': page_data, 'new_url': new_url}, page_data['page_title'], page_data['root']+new_url);
+                    document.title = page['name'] + ' - ' + page_data['site_title'];
+                    
+                    if (!no_push) {
+                        history.replaceState (
+                            {'page_data': page_data, 'new_url': new_url}, 
+                            page['name'] + ' - ' + page_data['site_title'], 
+                            page_data['root']+new_url
+                        );
+                    }
+
                 });
                                         
                 if (!found) {
@@ -386,8 +414,16 @@ function do_assignment(assignment, assignment_data) {
                     loading = false;
                     $('.tab.active').removeClass('active');
                     
-                    document.title =  '404' + ' - ' + page_data['site_title'];     
-                    history.pushState({'page_data': page_data, 'new_url': new_url}, page_data['page_title'], page_data['root']+new_url);
+                    document.title =  '404' + ' - ' + page_data['site_title'];   
+                    
+                    if (!no_push) {
+                        history.replaceState (
+                            {'page_data': page_data, 'new_url': new_url}, 
+                            '404' + ' - ' + page_data['site_title'], 
+                            page_data['root']+new_url
+                        );
+                    }
+
                 }                            
 
             });
@@ -412,7 +448,7 @@ function do_assignment(assignment, assignment_data) {
 }
 
 window.onpopstate = function(event) {
-    do_assignment('page', event.state['new_url']);
+    do_assignment('page', event.state['new_url'], true);
 };    
 
     
