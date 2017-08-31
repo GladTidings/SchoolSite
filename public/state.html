@@ -177,6 +177,22 @@
         right: 20px;
       }
       
+      .edit_child {
+        cursor: pointer;
+      }
+      .edit_child:hover {
+          color: #666666;
+      }
+      
+      .edit_child_ok {
+          color: #449d44;
+          cursor: pointer
+      }
+      .edit_child_ok:hover {
+          color: #5cb85c;
+      }
+      
+      
       #choose_month {
         transition: all 0.3s ease;
         width: 140px;
@@ -249,13 +265,15 @@
       
       #new_row td {
         padding: 4px;
+        border-bottom: solid 1px #666666;
       }
       
       #g_plus {
         color: #449d44;
-        font-size: 16px;
+        font-size: 24px;
         font-weight: bold;
         cursor: pointer;
+        padding: 0 !important;
       }
       #g_plus:hover {
         color: #5cb85c;
@@ -301,12 +319,10 @@
               <h4 class='modal-title'>Edit Students</h4>
             </div>
             <div class='modal-body' style='overflow: auto;'>
-              <p>Students</p>
-              
               <!-- edit kid table -->
               <table id='kid_table' class='table table-striped'>
                 <thead>
-                  <tr><th>Parent's Name</th><th>Student's Name</th><th style='width: 8%;'>DCN</th><th style='width: 2%;'></th></tr>
+                  <tr><th colspan="2">Parent's Name</th><th>Student's Name</th><th style='width: 8%;'>DCN</th><th style='width: 2%;'></th></tr>
                 </thead>
                 <tbody id='edit_tbody'>
                 </tbody>
@@ -355,6 +371,7 @@
         children = null;
         children_dir = null;
         to_add = null;
+        to_edit = null;
         $('#main').fadeOut(400, function(){
           $('#signin').fadeIn(600);
         });
@@ -551,7 +568,7 @@
     // ============================================ Edit Modal =====================================
     function edit_kids() {
         let edit_str = "<tr id='new_row'>" +
-                    "<td><input id='new_parent' class='form-contol' placeholder='Parent`s Name'/></td>" +
+                    "<td colspan='2'><input id='new_parent' class='form-contol' placeholder='New Parent`s Name'/></td>" +
                     "<td><input id='new_kid' class='form-contol' placeholder='New Student'/></td>" + 
                     "<td><input id='new_dcn' class='form-contol' placeholder='DCN'/></td>" +
                     "<td id='g_plus'>+</td>" +
@@ -564,13 +581,16 @@
             if (this_child[3] !== undefined && this_child[3] === 'hidden')
                 continue;
             
-            edit_str += "<tr id='"+ id +"'><td>"+this_child[0]+"</td><td>"+this_child[1]+"</td>" +
+            edit_str += "<tr id='"+ id +"'>"
+                        +"<td><span id='"+id+"_edit' class='edit_child glyphicon glyphicon-pencil' child_id='"+id+"' aria-hidden='true'></span></td>"
+                        +"<td>"+this_child[0]+"</td><td>"+this_child[1]+"</td>" +
                         "<td>"+this_child[2]+"</td><td id='"+id+"_x' class='x_col'>X</td></tr>";
         }
         
         // list of ids for kids to be deleted
         to_delete = [];
         to_add = {};
+        to_edit = {};
         let delete_id = '';
         
         
@@ -578,7 +598,7 @@
         $(".x_col").on('click', function (){
             delete_id = $(this).parent().attr("id");
             if (delete_id in to_add) {
-                delete to_add[delete_id]
+                delete to_add[delete_id];
             }
             else {
                 to_delete.push(delete_id);
@@ -602,6 +622,7 @@
             to_add[new_id] = [new_parent, new_kid, new_dcn];
             
             let new_str = "<tr id='"+ new_id +"'>" +
+                             "<td></td>" +
                              "<td>"+ new_parent +"</td>" +
                              "<td>"+ new_kid +"</td>" +
                              "<td>"+ new_dcn +"</td>" +
@@ -624,6 +645,56 @@
             $("#new_kid").val("");
             $("#new_dcn").val("");
         });
+        
+        $(".edit_child").on("click", edit_child_func);
+        
+        function edit_child_func() {
+            console.log($(this).attr("child_id"));
+            let child_id = $(this).attr("child_id");
+            let child = children_dir[child_id];
+            
+            $("#"+child_id).html (
+                "<td><span id='"+child_id+"_ok' class='glyphicon glyphicon-ok edit_child_ok' child_id='"+child_id+"' aria-hidden='true'></span></td>"
+                +"<td><input id='edit_0_"+child_id+"' class='edit_child_input_0' child_id='"+child_id+"' value='"+child[0]+"'></input></td>"
+                +"<td><input id='edit_1_"+child_id+"' class='edit_child_input_1' child_id='"+child_id+"' value='"+child[1]+"'></input></td>"
+                +"<td><input id='edit_2_"+child_id+"'class='edit_child_input_2' child_id='"+child_id+"' value='"+child[2]+"'></input></td>"
+                +"<td></td>"
+            ).promise()
+            .done( function() {
+                console.log("child_id", child_id);
+                $("#"+child_id+"_ok.edit_child_ok").on("click", edit_child_ok_func);
+            });
+        };
+        
+        // add this to "done" callback for edit child
+        function edit_child_ok_func() {
+            console.log($(this).attr("child_id"));
+            let child_id = $(this).attr("child_id");
+            let child = [
+                $("#edit_0_"+child_id).val(),
+                $("#edit_1_"+child_id).val(),
+                $("#edit_2_"+child_id).val()
+            ];
+            
+            
+            
+            to_edit[child_id] = child;
+            children_dir[child_id] = child;
+            
+            console.log(to_edit);
+            
+            $("#"+child_id).html (
+                "<td><span id='"+child_id+"_edit' class='glyphicon glyphicon-pencil edit_child' child_id='"+child_id+"' aria-hidden='true'></span></td>"
+                +"<td>"+child[0]+"</td>"
+                +"<td>"+child[1]+"</td>"
+                +"<td>"+child[2]+"</td>"
+                +"<td></td>"
+            ).promise()
+            .done( function() {
+                $("#"+child_id+"_edit.edit_child").on("click", edit_child_func);
+            });
+            
+        }
       });
     }
     
@@ -632,7 +703,9 @@
     $("#edit_save").on("click", function() {
         $("#info_msg").text("Working...").fadeIn(0).delay(1400).fadeOut(400);
         $("#edit_mod").modal("hide");
+        
         console.log('to add is', to_add);
+        
         let for_update = {};
         for (let i = 0; i < to_delete.length; i++) {
             //for_update[to_delete[i]] = null;
@@ -640,24 +713,43 @@
             for_update[to_delete[i]][3] = 'hidden';
         }
         
+        // edit has 2nd highest priority 
+        for (let key in to_edit) {
+            let new_key = to_edit[key][0] + to_edit[key][1];
+            new_key = new_key.replace(/\W/g, '').toLowerCase();
+            
+            for_update[key] = children_dir[key].slice(); // clone
+            for_update[key][3] = 'hidden';
+            
+            for_update[new_key] = to_edit[key].slice(); // clone
+            for_update[new_key][3]  = 'not hidden';
+        }
+        
+        // add has highest priority
         for(let key in to_add) {
             for_update[key] = to_add[key];
             for_update[key][3] = 'not hidden';
         }
-
+        
         console.log('to delete is', to_delete);
         console.log('new to add is ', to_add);
+        console.log('to edit is ', to_edit);
         console.log('update is ', for_update);
         
         // post changes
         firebase.database().ref("kids_dict").update(for_update).then(function() {
             $("#success_msg").text("Done").fadeIn(0).delay(1400).fadeOut(400);
+            for_update = {};
+            to_add = {};
+            to_edit = {};
+            to_delete = [];
         });
     });
     
     $(".edit_cancel").on("click", function(){
         to_delete = [];
         to_add = {};
+        to_edit = {};
         edit_kids();
     });
     
@@ -667,6 +759,7 @@
       $('#edit_mod').modal('show');
       to_delete = [];
       to_add = {};
+      to_edit = {};
     });
     
     $('#myModal').on('shown.bs.modal', function () {
