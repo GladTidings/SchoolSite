@@ -8,11 +8,14 @@
     ],
     
     "cleanUrls": true,
-    
-    "rewrites": [      
+    "rewrites": [
       {
-        "source": "**", "destination": "/index.html"
+        "source": "**",
+        "destination": "/index.html"
       }
     ]
+  },
+  "functions": {
+    "source": "functions"
   }
 }
